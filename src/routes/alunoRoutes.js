@@ -5,5 +5,6 @@ const router = Router();
 
 router.get("/alunos", alunoController.findMany);
 router.post("/alunos", alunoController.create);
+router.get("/alunos/:id", alunoController.findUnique);
 
 export default router;

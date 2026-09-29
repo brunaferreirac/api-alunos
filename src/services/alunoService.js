@@ -1,5 +1,6 @@
 import prisma from "../prisma.js";
 import AlunoInvalidoError from "../errors/AlunoInvalidoError.js";
+import AlunoNaoEncontradoError from "../errors/AlunoNaoEncontradoError.js";
 
 class AlunoService {
   async create(dados) {
@@ -27,6 +28,14 @@ class AlunoService {
     ]);
 
     return { alunos, total };
+  }
+
+  async findUnique(id) {
+    const aluno = await prisma.aluno.findUnique({ where: { id: Number(id) } });
+    if (!aluno) {
+      throw new AlunoNaoEncontradoError();
+    }
+    return aluno;
   }
 }
 
