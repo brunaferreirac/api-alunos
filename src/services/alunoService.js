@@ -37,6 +37,33 @@ class AlunoService {
     }
     return aluno;
   }
+
+  async update(id, dados) {
+    const { nome, email } = dados || {};
+
+    // Corpo vazio = dado inválido. Reaproveita AlunoInvalidoError (400),
+    // não precisa de exceção própria.
+    if (!nome && !email) {
+      throw new AlunoInvalidoError("Informe nome e/ou email para atualizar");
+    }
+
+    // Reaproveita AlunoNaoEncontradoError (404) se o id não existir
+    await this.findUnique(id);
+
+    if (email) {
+      const existente = await prisma.aluno.findUnique({ where: { email } });
+      if (existente && existente.id !== Number(id)) {
+        // Email duplicado também reaproveita AlunoInvalidoError (com status 409,
+        // que significa "conflito"), evitando criar uma classe só para isso.
+        throw new AlunoInvalidoError("Email já cadastrado para outro aluno", 409);
+      }
+    }
+
+    return prisma.aluno.update({
+      where: { id: Number(id) },
+      data: { ...(nome && { nome }), ...(email && { email }) },
+    });
+  }
 }
 
 export default new AlunoService();
