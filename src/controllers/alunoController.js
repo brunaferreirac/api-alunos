@@ -37,6 +37,15 @@ class AlunoController {
       return response.status(e.statusCode || 500).json({ message: e.message });
     }
   }
+
+  async delete(request, response) {
+    try {
+      await alunoService.delete(request.params.id);
+      return response.status(204).send(); // 204 = sucesso sem corpo
+    } catch (e) {
+      return response.status(e.statusCode || 500).json({ message: e.message });
+    }
+  }
 }
 
 export default new AlunoController();

@@ -64,6 +64,11 @@ class AlunoService {
       data: { ...(nome && { nome }), ...(email && { email }) },
     });
   }
+
+  async delete(id) {
+    await this.findUnique(id); // 404 se não existir
+    await prisma.aluno.delete({ where: { id: Number(id) } });
+  }
 }
 
 export default new AlunoService();
