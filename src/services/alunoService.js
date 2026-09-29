@@ -10,12 +10,23 @@ class AlunoService {
     return prisma.aluno.create({ data: { nome, email } });
   }
 
-  async findMany(page, pageSize) {
-    const alunos = await prisma.aluno.findMany({
-      skip: (page - 1) * pageSize,
-      take: Number(pageSize),
-    });
-    return alunos;
+  async findMany(page, pageSize, orderBy, order) {
+    // Só aceita campos que existem; qualquer outro valor cai no padrão "id"
+    const camposPermitidos = ["id", "nome", "email", "createdAt"];
+    const campo = camposPermitidos.includes(orderBy) ? orderBy : "id";
+    // Qualquer valor diferente de "desc" (inclusive inválido) vira "asc"
+    const direcao = order === "desc" ? "desc" : "asc";
+
+    const [alunos, total] = await Promise.all([
+      prisma.aluno.findMany({
+        skip: (page - 1) * pageSize,
+        take: Number(pageSize),
+        orderBy: { [campo]: direcao },
+      }),
+      prisma.aluno.count(),
+    ]);
+
+    return { alunos, total };
   }
 }
 
